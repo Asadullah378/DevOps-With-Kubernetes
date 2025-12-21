@@ -22,9 +22,9 @@
 
 **Submission:** [1.3](https://github.com/Asadullah378/DevOps-With-Kubernetes/tree/1.3)
 
-**ToDo App:**
+**Log Output:**
 
-![ToDo App](LogOutput/Screenshots/1.3.png)
+![Log Output](LogOutput/Screenshots/1.3.png)
 
 ### Exercise 1.4: The project, step 2
 
@@ -37,3 +37,11 @@
 **ToDo App:**
 
 ![ToDo App](ToDo-App/Screenshots/1.5.png)
+
+### Exercise 1.6: The project, step 4
+
+**Submission:** [1.6](https://github.com/Asadullah378/DevOps-With-Kubernetes/tree/1.6)
+
+**ToDo App:**
+
+![ToDo App](ToDo-App/Screenshots/1.6.png)
