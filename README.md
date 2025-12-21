@@ -61,3 +61,11 @@
 **ToDo App:**
 
 ![ToDo App](ToDo-App/Screenshots/1.8.png)
+
+### Exercise 1.9: More services
+
+**Submission:** [1.9](https://github.com/Asadullah378/DevOps-With-Kubernetes/tree/1.9)
+
+**PingPong App:**
+
+![PingPong App](PingPong/Screenshots/1.9.png)
