@@ -12,6 +12,10 @@ spec:
       labels:
         app: todo-app
     spec:
+      volumes:
+        - name: todo-images
+          persistentVolumeClaim:
+            claimName: shared-pvc
       containers:
         - name: todo-app
           image: todo-app:latest
@@ -19,3 +23,8 @@ spec:
           env:
             - name: PORT
               value: "8000"
+            - name: IMAGE_DIR
+              value: "/usr/src/app/images"
+          volumeMounts:
+            - name: todo-images
+              mountPath: /usr/src/app/images

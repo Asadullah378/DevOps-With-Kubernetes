@@ -1,13 +1,90 @@
 import os
+import time
+import httpx
 import uvicorn
 from fastapi import FastAPI
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, FileResponse
+from pathlib import Path
 
 app = FastAPI(title="ToDo App")
+
+# Configuration
+IMAGE_DIR = Path(os.getenv("IMAGE_DIR", "/usr/src/app/images"))
+IMAGE_FILE = IMAGE_DIR / "daily_image.jpg"
+TIMESTAMP_FILE = IMAGE_DIR / "timestamp.txt"
+CACHE_DURATION = 60 * 10  # 10 minutes in seconds
+
+
+def ensure_image_dir():
+    """Ensure the image directory exists"""
+    IMAGE_DIR.mkdir(parents=True, exist_ok=True)
+
+
+def get_cached_timestamp():
+    """Get the timestamp when image was last fetched"""
+    try:
+        return float(TIMESTAMP_FILE.read_text().strip())
+    except (FileNotFoundError, ValueError):
+        return 0
+
+
+def save_timestamp():
+    """Save current timestamp"""
+    TIMESTAMP_FILE.write_text(str(time.time()))
+
+
+def is_image_expired():
+    """Check if the cached image is older than 10 minutes"""
+    cached_time = get_cached_timestamp()
+    return (time.time() - cached_time) > CACHE_DURATION
+
+
+def fetch_new_image():
+    """Fetch a new random image from Lorem Picsum"""
+    try:
+        print("Fetching new image from Lorem Picsum...")
+        with httpx.Client(follow_redirects=True, timeout=30.0) as client:
+            response = client.get("https://picsum.photos/1200")
+            response.raise_for_status()
+            IMAGE_FILE.write_bytes(response.content)
+            save_timestamp()
+            print("New image cached successfully")
+            return True
+    except Exception as e:
+        print(f"Error fetching image: {e}")
+        return False
+
+
+def get_or_refresh_image():
+    """Get cached image or fetch new one if expired"""
+    ensure_image_dir()
+    
+    # If image doesn't exist, fetch it
+    if not IMAGE_FILE.exists():
+        fetch_new_image()
+        return
+    
+    # If image is expired, fetch new one
+    if is_image_expired():
+        fetch_new_image()
+
+
+@app.get("/image")
+async def get_image():
+    """Serve the cached image"""
+    get_or_refresh_image()
+    
+    if IMAGE_FILE.exists():
+        return FileResponse(IMAGE_FILE, media_type="image/jpeg")
+    else:
+        return HTMLResponse(content="<p>Image not available</p>", status_code=503)
 
 
 @app.get("/", response_class=HTMLResponse)
 async def root():
+    # Ensure image is ready
+    get_or_refresh_image()
+    
     html_content = """
     <!DOCTYPE html>
     <html lang="en">
@@ -16,54 +93,21 @@ async def root():
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>ToDo App</title>
         <style>
-            * { margin: 0; padding: 0; box-sizing: border-box; }
             body {
-                font-family: 'Segoe UI', system-ui, sans-serif;
-                min-height: 100vh;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-                color: #eee;
-            }
-            .container {
+                font-family: sans-serif;
                 text-align: center;
-                padding: 3rem;
-                background: rgba(255, 255, 255, 0.05);
-                border-radius: 20px;
-                backdrop-filter: blur(10px);
-                border: 1px solid rgba(255, 255, 255, 0.1);
-                box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+                padding: 20px;
             }
-            h1 {
-                font-size: 3rem;
-                margin-bottom: 1rem;
-                background: linear-gradient(90deg, #e94560, #ff6b6b);
-                -webkit-background-clip: text;
-                -webkit-text-fill-color: transparent;
-                background-clip: text;
-            }
-            p {
-                font-size: 1.2rem;
-                color: #aaa;
-            }
-            .status {
-                margin-top: 2rem;
-                padding: 0.75rem 1.5rem;
-                background: rgba(233, 69, 96, 0.2);
-                border-radius: 30px;
-                display: inline-block;
-                color: #e94560;
-                font-weight: 500;
+            img {
+                max-width: 600px;
+                width: 100%;
+                margin-top: 20px;
             }
         </style>
     </head>
     <body>
-        <div class="container">
-            <h1>📝 ToDo App</h1>
-            <p>DevOps with Kubernetes - Exercise 1.5</p>
-            <div class="status">✓ Server Running</div>
-        </div>
+        <h1>ToDo App</h1>
+        <img src="/image" alt="Daily image" />
     </body>
     </html>
     """
@@ -74,4 +118,3 @@ if __name__ == "__main__":
     port = int(os.getenv("PORT", 3000))
     print(f"Server started in port {port}")
     uvicorn.run(app, host="0.0.0.0", port=port)
-

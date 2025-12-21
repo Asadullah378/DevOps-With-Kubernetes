@@ -86,3 +86,11 @@
 
 ![Log Output](LogOutput/Screenshots/1.11.1.png)
 ![PingPong Output](PingPong/Screenshots/1.11.2.png)
+
+### Exercise 1.12: The project, step 6
+
+**Submission:** [1.12](https://github.com/Asadullah378/DevOps-With-Kubernetes/tree/1.12)
+
+**ToDo App:**
+
+![ToDo App](ToDo-App/Screenshots/1.12.png)
