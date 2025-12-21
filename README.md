@@ -69,3 +69,11 @@
 **PingPong App:**
 
 ![PingPong App](PingPong/Screenshots/1.9.png)
+
+### Exercise 1.10: Even more services
+
+**Submission:** [1.10](https://github.com/Asadullah378/DevOps-With-Kubernetes/tree/1.10)
+
+**Log Output:**
+
+![Log Output](LogOutput/Screenshots/1.10.png)

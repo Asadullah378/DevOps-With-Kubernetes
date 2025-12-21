@@ -12,10 +12,22 @@ spec:
       labels:
         app: hashgenerator
     spec:
+      volumes:
+        - name: shared-log
+          emptyDir: {}
       containers:
-        - name: hashgenerator
-          image: log-output:latest
+        - name: log-writer
+          image: log-writer:latest
+          imagePullPolicy: IfNotPresent
+          volumeMounts:
+            - name: shared-log
+              mountPath: /usr/src/app/files
+        - name: log-reader
+          image: log-reader:latest
           imagePullPolicy: IfNotPresent
           env:
             - name: PORT
               value: "8000"
+          volumeMounts:
+            - name: shared-log
+              mountPath: /usr/src/app/files

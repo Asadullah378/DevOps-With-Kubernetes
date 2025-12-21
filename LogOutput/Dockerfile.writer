@@ -1,0 +1,10 @@
+FROM python:3.12-alpine
+
+WORKDIR /usr/src/app
+
+COPY log_writer.py .
+
+ENV LOG_FILE=/usr/src/app/files/log.txt
+
+CMD ["python", "-u", "log_writer.py"]
+
