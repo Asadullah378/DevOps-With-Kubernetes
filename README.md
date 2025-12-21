@@ -77,3 +77,12 @@
 **Log Output:**
 
 ![Log Output](LogOutput/Screenshots/1.10.png)
+
+### Exercise 1.11: Persisting data
+
+**Submission:** [1.11](https://github.com/Asadullah378/DevOps-With-Kubernetes/tree/1.11)
+
+**Output:**
+
+![Log Output](LogOutput/Screenshots/1.11.1.png)
+![PingPong Output](PingPong/Screenshots/1.11.2.png)

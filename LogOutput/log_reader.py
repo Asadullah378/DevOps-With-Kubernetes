@@ -1,8 +1,18 @@
 import os
 from http.server import HTTPServer, BaseHTTPRequestHandler
 
-# File path for shared volume
+# File paths for shared volumes
 LOG_FILE = os.getenv("LOG_FILE", "/usr/src/app/files/log.txt")
+COUNTER_FILE = os.getenv("COUNTER_FILE", "/usr/src/app/data/counter.txt")
+
+
+def read_pingpong_count():
+    """Read ping-pong counter from persistent volume"""
+    try:
+        with open(COUNTER_FILE, "r") as f:
+            return int(f.read().strip())
+    except (FileNotFoundError, ValueError):
+        return 0
 
 
 class LogHandler(BaseHTTPRequestHandler):
@@ -10,11 +20,18 @@ class LogHandler(BaseHTTPRequestHandler):
         if self.path == "/" or self.path == "/status":
             try:
                 with open(LOG_FILE, "r") as f:
-                    content = f.read()
+                    # read last line
+                    log_content = f.readlines()[-1].strip()
+                
+                pingpong_count = read_pingpong_count()
+                
+                # Format: timestamp: random_string.\nPing / Pongs: N
+                response = f"{log_content}\nPing / Pongs: {pingpong_count}"
+                
                 self.send_response(200)
                 self.send_header("Content-Type", "text/plain")
                 self.end_headers()
-                self.wfile.write(content.encode())
+                self.wfile.write(response.encode())
             except FileNotFoundError:
                 self.send_response(503)
                 self.send_header("Content-Type", "text/plain")
@@ -33,4 +50,3 @@ if __name__ == "__main__":
     print(f"Log Reader server started in port {port}")
     server = HTTPServer(("0.0.0.0", port), LogHandler)
     server.serve_forever()
-
