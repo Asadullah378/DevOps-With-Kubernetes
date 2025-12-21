@@ -53,3 +53,11 @@
 **Log Output:**
 
 ![Log Output](LogOutput/Screenshots/1.7.png)
+
+### Exercise 1.8: The project, step 5
+
+**Submission:** [1.8](https://github.com/Asadullah378/DevOps-With-Kubernetes/tree/1.8)
+
+**ToDo App:**
+
+![ToDo App](ToDo-App/Screenshots/1.8.png)
