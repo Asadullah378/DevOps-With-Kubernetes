@@ -16,3 +16,6 @@ spec:
         - name: hashgenerator
           image: log-output:latest
           imagePullPolicy: IfNotPresent
+          env:
+            - name: PORT
+              value: "8000"

@@ -4,5 +4,7 @@ WORKDIR /app
 
 COPY main.py .
 
+ENV PORT=3000
+
 CMD ["python", "-u", "main.py"]
 

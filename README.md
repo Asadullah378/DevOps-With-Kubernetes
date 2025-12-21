@@ -45,3 +45,11 @@
 **ToDo App:**
 
 ![ToDo App](ToDo-App/Screenshots/1.6.png)
+
+### Exercise 1.7: External access with Ingress
+
+**Submission:** [1.7](https://github.com/Asadullah378/DevOps-With-Kubernetes/tree/1.7)
+
+**Log Output:**
+
+![Log Output](LogOutput/Screenshots/1.7.png)
