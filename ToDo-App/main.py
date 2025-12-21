@@ -97,17 +97,88 @@ async def root():
                 font-family: sans-serif;
                 text-align: center;
                 padding: 20px;
+                max-width: 800px;
+                margin: 0 auto;
             }
             img {
-                max-width: 600px;
+                max-width: 400px;
                 width: 100%;
-                margin-top: 20px;
+                margin: 20px 0;
+            }
+            .todo-form {
+                margin: 20px 0;
+            }
+            .todo-form input[type="text"] {
+                width: 300px;
+                padding: 10px;
+                font-size: 16px;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+            }
+            .todo-form button {
+                padding: 10px 20px;
+                font-size: 16px;
+                background-color: #007bff;
+                color: white;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+                margin-left: 10px;
+            }
+            .todo-form button:hover {
+                background-color: #0056b3;
+            }
+            .char-count {
+                font-size: 12px;
+                color: #666;
+                margin-top: 5px;
+            }
+            .todo-list {
+                list-style: none;
+                padding: 0;
+                text-align: left;
+                max-width: 500px;
+                margin: 20px auto;
+            }
+            .todo-list li {
+                padding: 10px;
+                border-bottom: 1px solid #eee;
             }
         </style>
     </head>
     <body>
         <h1>ToDo App</h1>
         <img src="/image" alt="Daily image" />
+        
+        <div class="todo-form">
+            <input type="text" id="todoInput" maxlength="140" placeholder="Enter a todo (max 140 chars)" />
+            <button onclick="addTodo()">Send</button>
+            <div class="char-count"><span id="charCount">0</span>/140</div>
+        </div>
+        
+        <ul class="todo-list">
+            <li>Buy groceries</li>
+            <li>Finish DevOps with Kubernetes exercises</li>
+            <li>Learn about Persistent Volumes</li>
+            <li>Deploy application to cluster</li>
+        </ul>
+        
+        <script>
+            const input = document.getElementById('todoInput');
+            const charCount = document.getElementById('charCount');
+            
+            input.addEventListener('input', function() {
+                charCount.textContent = this.value.length;
+            });
+            
+            function addTodo() {
+                const value = input.value.trim();
+                if (value && value.length <= 140) {
+                    console.log('Todo:', value);
+                    // For now, just log the todo
+                }
+            }
+        </script>
     </body>
     </html>
     """
