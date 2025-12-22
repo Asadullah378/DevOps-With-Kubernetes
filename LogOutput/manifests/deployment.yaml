@@ -16,6 +16,9 @@ spec:
       volumes:
         - name: shared-log
           emptyDir: {}
+        - name: config-volume
+          configMap:
+            name: logoutput-configmap
       containers:
         - name: log-writer
           image: log-writer:latest
@@ -31,6 +34,13 @@ spec:
               value: "8000"
             - name: PINGPONG_URL
               value: "http://pingpong-svc:2346/pings"
+            - name: MESSAGE
+              valueFrom:
+                configMapKeyRef:
+                  name: logoutput-configmap
+                  key: MESSAGE
           volumeMounts:
             - name: shared-log
               mountPath: /usr/src/app/files
+            - name: config-volume
+              mountPath: /usr/src/app/config

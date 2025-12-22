@@ -124,3 +124,11 @@
 ### Exercise 2.4: The project, step 9
 
 **Submission:** [2.4](https://github.com/Asadullah378/DevOps-With-Kubernetes/tree/2.4)
+
+### Exercise 2.5: The project, step 8
+
+**Submission:** [2.5](https://github.com/Asadullah378/DevOps-With-Kubernetes/tree/2.5)
+
+**Log Output:**
+
+![Log Output](LogOutput/Screenshots/2.5.png)
