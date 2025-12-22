@@ -132,3 +132,7 @@
 **Log Output:**
 
 ![Log Output](LogOutput/Screenshots/2.5.png)
+
+### Exercise 2.6: The project, step 10
+
+**Submission:** [2.6](https://github.com/Asadullah378/DevOps-With-Kubernetes/tree/2.6)
