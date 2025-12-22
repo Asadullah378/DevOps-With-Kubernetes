@@ -8,11 +8,12 @@ from pathlib import Path
 
 app = FastAPI(title="ToDo App")
 
-# Configuration
+# Configuration from environment variables
 IMAGE_DIR = Path(os.getenv("IMAGE_DIR", "/usr/src/app/images"))
 IMAGE_FILE = IMAGE_DIR / "daily_image.jpg"
 TIMESTAMP_FILE = IMAGE_DIR / "timestamp.txt"
-CACHE_DURATION = 60 * 10  # 10 minutes in seconds
+CACHE_DURATION = int(os.getenv("CACHE_DURATION", "600"))  # seconds
+IMAGE_URL = os.getenv("IMAGE_URL", "https://picsum.photos/1200")
 
 
 def ensure_image_dir():
@@ -42,9 +43,9 @@ def is_image_expired():
 def fetch_new_image():
     """Fetch a new random image from Lorem Picsum"""
     try:
-        print("Fetching new image from Lorem Picsum...")
+        print(f"Fetching new image from {IMAGE_URL}...")
         with httpx.Client(follow_redirects=True, timeout=30.0) as client:
-            response = client.get("https://picsum.photos/1200")
+            response = client.get(IMAGE_URL)
             response.raise_for_status()
             IMAGE_FILE.write_bytes(response.content)
             save_timestamp()

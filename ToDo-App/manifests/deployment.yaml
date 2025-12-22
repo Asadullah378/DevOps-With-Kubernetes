@@ -21,11 +21,9 @@ spec:
         - name: todo-app
           image: todo-app:latest
           imagePullPolicy: IfNotPresent
-          env:
-            - name: PORT
-              value: "8000"
-            - name: IMAGE_DIR
-              value: "/usr/src/app/images"
+          envFrom:
+            - configMapRef:
+                name: todo-app-configmap
           volumeMounts:
             - name: todo-images
               mountPath: /usr/src/app/images
