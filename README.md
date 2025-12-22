@@ -120,3 +120,7 @@
 ### Exercise 2.3: Keep them separated
 
 **Submission:** [2.3](https://github.com/Asadullah378/DevOps-With-Kubernetes/tree/2.3)
+
+### Exercise 2.4: The project, step 9
+
+**Submission:** [2.4](https://github.com/Asadullah378/DevOps-With-Kubernetes/tree/2.4)

@@ -1,6 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  namespace: project
   name: todo-backend-dep
 spec:
   replicas: 1
@@ -19,4 +20,3 @@ spec:
           env:
             - name: PORT
               value: "3000"
-
