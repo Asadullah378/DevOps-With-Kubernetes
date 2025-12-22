@@ -125,7 +125,7 @@
 
 **Submission:** [2.4](https://github.com/Asadullah378/DevOps-With-Kubernetes/tree/2.4)
 
-### Exercise 2.5: The project, step 8
+### Exercise 2.5: Documentation and ConfigMaps
 
 **Submission:** [2.5](https://github.com/Asadullah378/DevOps-With-Kubernetes/tree/2.5)
 
