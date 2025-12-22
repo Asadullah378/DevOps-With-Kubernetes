@@ -102,3 +102,9 @@
 **ToDo App:**
 
 ![ToDo App](ToDo-App/Screenshots/1.13.png)
+
+## Chapter 3
+
+### Exercise 2.1: Connecting pods
+
+**Submission:** [2.1](https://github.com/Asadullah378/DevOps-With-Kubernetes/tree/2.1)
