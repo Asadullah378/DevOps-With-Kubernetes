@@ -145,3 +145,11 @@
 
 ![Log Output](PingPong/Screenshots/2.7.1.png)
 ![PingPong Output](PingPong/Screenshots/2.7.2.png)
+
+### Exercise 2.8: The project, step 11
+
+**Submission:** [2.8](https://github.com/Asadullah378/DevOps-With-Kubernetes/tree/2.8)
+
+**ToDo App:**
+
+![ToDo App](ToDo-App/Screenshots/2.8.png)
