@@ -108,3 +108,11 @@
 ### Exercise 2.1: Connecting pods
 
 **Submission:** [2.1](https://github.com/Asadullah378/DevOps-With-Kubernetes/tree/2.1)
+
+### Exercise 2.2: The project, step 8
+
+**Submission:** [2.2](https://github.com/Asadullah378/DevOps-With-Kubernetes/tree/2.2)
+
+**ToDo App:**
+
+![ToDo App](ToDo-App/Screenshots/2.2.png)
