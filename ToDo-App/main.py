@@ -156,28 +156,60 @@ async def root():
             <div class="char-count"><span id="charCount">0</span>/140</div>
         </div>
         
-        <ul class="todo-list">
-            <li>Buy groceries</li>
-            <li>Finish DevOps with Kubernetes exercises</li>
-            <li>Learn about Persistent Volumes</li>
-            <li>Deploy application to cluster</li>
+        <ul class="todo-list" id="todoList">
+            <li>Loading...</li>
         </ul>
         
         <script>
             const input = document.getElementById('todoInput');
             const charCount = document.getElementById('charCount');
+            const todoList = document.getElementById('todoList');
             
             input.addEventListener('input', function() {
                 charCount.textContent = this.value.length;
             });
             
-            function addTodo() {
-                const value = input.value.trim();
-                if (value && value.length <= 140) {
-                    console.log('Todo:', value);
-                    // For now, just log the todo
+            async function fetchTodos() {
+                try {
+                    const response = await fetch('/todos');
+                    const todos = await response.json();
+                    renderTodos(todos);
+                } catch (error) {
+                    console.error('Error fetching todos:', error);
+                    todoList.innerHTML = '<li>Error loading todos</li>';
                 }
             }
+            
+            function renderTodos(todos) {
+                if (todos.length === 0) {
+                    todoList.innerHTML = '<li>No todos yet. Add one!</li>';
+                } else {
+                    todoList.innerHTML = todos.map(t => `<li>${t.todo}</li>`).join('');
+                }
+            }
+            
+            async function addTodo() {
+                const value = input.value.trim();
+                if (value && value.length <= 140) {
+                    try {
+                        const response = await fetch('/todos', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ todo: value })
+                        });
+                        if (response.ok) {
+                            input.value = '';
+                            charCount.textContent = '0';
+                            fetchTodos();
+                        }
+                    } catch (error) {
+                        console.error('Error creating todo:', error);
+                    }
+                }
+            }
+            
+            // Load todos on page load
+            fetchTodos();
         </script>
     </body>
     </html>
