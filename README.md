@@ -136,3 +136,12 @@
 ### Exercise 2.6: The project, step 10
 
 **Submission:** [2.6](https://github.com/Asadullah378/DevOps-With-Kubernetes/tree/2.6)
+
+### Exercise 2.7: Stateful applications
+
+**Submission:** [2.7](https://github.com/Asadullah378/DevOps-With-Kubernetes/tree/2.7)
+
+**Output:**
+
+![Log Output](PingPong/Screenshots/2.7.1.png)
+![PingPong Output](PingPong/Screenshots/2.7.2.png)
