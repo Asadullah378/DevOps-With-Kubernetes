@@ -116,3 +116,7 @@
 **ToDo App:**
 
 ![ToDo App](ToDo-App/Screenshots/2.2.png)
+
+### Exercise 2.3: Keep them separated
+
+**Submission:** [2.3](https://github.com/Asadullah378/DevOps-With-Kubernetes/tree/2.3)
