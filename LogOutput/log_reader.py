@@ -1,17 +1,21 @@
 import os
+import urllib.request
 from http.server import HTTPServer, BaseHTTPRequestHandler
 
-# File paths for shared volumes
+# File path for shared volume (between log-writer and log-reader)
 LOG_FILE = os.getenv("LOG_FILE", "/usr/src/app/files/log.txt")
-COUNTER_FILE = os.getenv("COUNTER_FILE", "/usr/src/app/data/counter.txt")
+
+# PingPong service URL
+PINGPONG_URL = os.getenv("PINGPONG_URL", "http://pingpong-svc:2346/pings")
 
 
-def read_pingpong_count():
-    """Read ping-pong counter from persistent volume"""
+def get_pingpong_count():
+    """Get ping-pong count via HTTP from PingPong service"""
     try:
-        with open(COUNTER_FILE, "r") as f:
-            return int(f.read().strip())
-    except (FileNotFoundError, ValueError):
+        with urllib.request.urlopen(PINGPONG_URL, timeout=5) as response:
+            return int(response.read().decode().strip())
+    except Exception as e:
+        print(f"Error fetching pingpong count: {e}")
         return 0
 
 
@@ -23,7 +27,7 @@ class LogHandler(BaseHTTPRequestHandler):
                     # read last line
                     log_content = f.readlines()[-1].strip()
                 
-                pingpong_count = read_pingpong_count()
+                pingpong_count = get_pingpong_count()
                 
                 # Format: timestamp: random_string.\nPing / Pongs: N
                 response = f"{log_content}\nPing / Pongs: {pingpong_count}"

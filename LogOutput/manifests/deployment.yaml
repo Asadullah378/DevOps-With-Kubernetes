@@ -15,9 +15,6 @@ spec:
       volumes:
         - name: shared-log
           emptyDir: {}
-        - name: shared-data
-          persistentVolumeClaim:
-            claimName: shared-pvc
       containers:
         - name: log-writer
           image: log-writer:latest
@@ -31,10 +28,8 @@ spec:
           env:
             - name: PORT
               value: "8000"
-            - name: COUNTER_FILE
-              value: "/usr/src/app/data/counter.txt"
+            - name: PINGPONG_URL
+              value: "http://pingpong-svc:2346/pings"
           volumeMounts:
             - name: shared-log
               mountPath: /usr/src/app/files
-            - name: shared-data
-              mountPath: /usr/src/app/data
