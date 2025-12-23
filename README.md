@@ -153,3 +153,12 @@
 **ToDo App:**
 
 ![ToDo App](ToDo-App/Screenshots/2.8.png)
+
+### Exercise 2.9: The project, step 12
+
+**Submission:** [2.9](https://github.com/Asadullah378/DevOps-With-Kubernetes/tree/2.9)
+
+**ToDo App:**
+
+![ToDo App](ToDo-App/Screenshots/2.9.1.png)
+![ToDo App](ToDo-App/Screenshots/2.9.2.png)
