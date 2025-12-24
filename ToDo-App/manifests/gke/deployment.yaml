@@ -24,10 +24,10 @@ spec:
           image: PROJECT/TODO_APP
           resources:
             requests:
-              cpu: "50m"
-              memory: "64Mi"
+              cpu: "5m"
+              memory: "32Mi"
             limits:
-              cpu: "150m"
+              cpu: "100m"
               memory: "128Mi"
           envFrom:
             - configMapRef:

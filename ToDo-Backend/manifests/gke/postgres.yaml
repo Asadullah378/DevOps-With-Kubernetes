@@ -34,10 +34,10 @@ spec:
           image: postgres:16-alpine
           resources:
             requests:
-              cpu: "50m"
-              memory: "128Mi"
+              cpu: "5m"
+              memory: "32Mi"
             limits:
-              cpu: "250m"
+              cpu: "200m"
               memory: "256Mi"
           ports:
             - name: postgres
