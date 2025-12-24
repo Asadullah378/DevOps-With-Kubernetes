@@ -269,3 +269,12 @@
 ### Exercise 3.11: The project, step 19
 
 **Submission:** [3.11](https://github.com/Asadullah378/DevOps-With-Kubernetes/tree/3.11)
+
+### Exercise 3.12: The project, step 20
+
+**Submission:** [3.12](https://github.com/Asadullah378/DevOps-With-Kubernetes/tree/3.12)
+
+**ToDo App:**
+
+![ToDo App](ToDo-App/Screenshots/3.12.1.png)
+![ToDo App](ToDo-App/Screenshots/3.12.2.png)
