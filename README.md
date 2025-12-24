@@ -170,3 +170,11 @@
 **ToDo App:**
 
 ![ToDo App](ToDo-App/Screenshots/2.10.png)
+
+### Exercise 3.1: Pingpong GKE
+
+**Submission:** [3.1](https://github.com/Asadullah378/DevOps-With-Kubernetes/tree/3.1)
+
+**PingPong App:**
+
+![PingPong App](PingPong/Screenshots/3.1.png)
