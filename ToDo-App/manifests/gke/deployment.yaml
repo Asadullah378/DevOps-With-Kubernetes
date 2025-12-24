@@ -24,11 +24,11 @@ spec:
           image: PROJECT/TODO_APP
           resources:
             requests:
-              cpu: "2m"
-              memory: "16Mi"
+              cpu: "1m"
+              memory: "8Mi"
             limits:
-              cpu: "50m"
-              memory: "64Mi"
+              cpu: "25m"
+              memory: "32Mi"
           envFrom:
             - configMapRef:
                 name: todo-app-configmap
