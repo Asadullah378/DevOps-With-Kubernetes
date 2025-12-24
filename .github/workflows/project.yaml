@@ -1,0 +1,103 @@
+name: Deploy ToDo Project
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'ToDo-App/**'
+      - 'ToDo-Backend/**'
+      - '.github/workflows/project.yaml'
+
+env:
+  PROJECT_ID: ${{ secrets.GKE_PROJECT }}
+  GKE_CLUSTER: dwk-cluster
+  GKE_ZONE: europe-north1-b
+  REGISTRY: gcr.io
+
+jobs:
+  build-publish-deploy:
+    name: Build, Publish and Deploy
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: '${{ secrets.GKE_SA_KEY }}'
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Configure Docker for GCR
+        run: gcloud --quiet auth configure-docker
+
+      - name: Get GKE credentials
+        uses: google-github-actions/get-gke-credentials@v2
+        with:
+          cluster_name: '${{ env.GKE_CLUSTER }}'
+          project_id: '${{ env.PROJECT_ID }}'
+          location: '${{ env.GKE_ZONE }}'
+
+      # Build and push ToDo-App
+      - name: Build ToDo-App
+        run: |
+          docker build -t $REGISTRY/$PROJECT_ID/todo-app:${{ github.sha }} ./ToDo-App
+          docker build -t $REGISTRY/$PROJECT_ID/todo-app:latest ./ToDo-App
+
+      - name: Push ToDo-App
+        run: |
+          docker push $REGISTRY/$PROJECT_ID/todo-app:${{ github.sha }}
+          docker push $REGISTRY/$PROJECT_ID/todo-app:latest
+
+      # Build and push ToDo-Backend
+      - name: Build ToDo-Backend
+        run: |
+          docker build -t $REGISTRY/$PROJECT_ID/todo-backend:${{ github.sha }} ./ToDo-Backend
+          docker build -t $REGISTRY/$PROJECT_ID/todo-backend:latest ./ToDo-Backend
+
+      - name: Push ToDo-Backend
+        run: |
+          docker push $REGISTRY/$PROJECT_ID/todo-backend:${{ github.sha }}
+          docker push $REGISTRY/$PROJECT_ID/todo-backend:latest
+
+      # Build and push ToDo-CronJob
+      - name: Build ToDo-CronJob
+        run: |
+          docker build -t $REGISTRY/$PROJECT_ID/todo-cronjob:${{ github.sha }} ./ToDo-Backend/cronjob
+          docker build -t $REGISTRY/$PROJECT_ID/todo-cronjob:latest ./ToDo-Backend/cronjob
+
+      - name: Push ToDo-CronJob
+        run: |
+          docker push $REGISTRY/$PROJECT_ID/todo-cronjob:${{ github.sha }}
+          docker push $REGISTRY/$PROJECT_ID/todo-cronjob:latest
+
+      # Set up Kustomize
+      - name: Set up Kustomize
+        uses: imranismail/setup-kustomize@v2
+
+      # Deploy ToDo-Backend first (database dependency)
+      - name: Deploy ToDo-Backend
+        run: |
+          cd ToDo-Backend/manifests/gke
+          kustomize edit set image PROJECT/TODO_BACKEND=$REGISTRY/$PROJECT_ID/todo-backend:${{ github.sha }}
+          kustomize edit set image PROJECT/TODO_CRONJOB=$REGISTRY/$PROJECT_ID/todo-cronjob:${{ github.sha }}
+          kustomize build . | kubectl apply -f -
+          kubectl rollout status deployment/todo-backend-dep -n project
+
+      # Deploy ToDo-App
+      - name: Deploy ToDo-App
+        run: |
+          cd ToDo-App/manifests/gke
+          kustomize edit set image PROJECT/TODO_APP=$REGISTRY/$PROJECT_ID/todo-app:${{ github.sha }}
+          kustomize build . | kubectl apply -f -
+          kubectl rollout status deployment/todo-app-dep -n project
+
+      - name: Verify deployment
+        run: |
+          kubectl get pods -n project
+          kubectl get gateway -n project
+

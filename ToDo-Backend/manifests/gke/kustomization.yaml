@@ -6,7 +6,10 @@ resources:
   - postgres.yaml
   - deployment.yaml
   - service.yaml
+  - cronjob.yaml
 images:
   - name: PROJECT/TODO_BACKEND
     newName: gcr.io/dwk-gke-482214/todo-backend
+  - name: PROJECT/TODO_CRONJOB
+    newName: gcr.io/dwk-gke-482214/todo-cronjob
 
