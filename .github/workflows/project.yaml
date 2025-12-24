@@ -2,8 +2,6 @@ name: Deploy ToDo Project
 
 on:
   push:
-    branches:
-      - main
     paths:
       - 'ToDo-App/**'
       - 'ToDo-Backend/**'
@@ -14,6 +12,7 @@ env:
   GKE_CLUSTER: dwk-cluster
   GKE_ZONE: europe-north1-b
   REGISTRY: gcr.io
+  BRANCH: ${{ github.ref_name }}
 
 jobs:
   build-publish-deploy:
@@ -24,6 +23,14 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Set namespace
+        run: |
+          if [ "$BRANCH" == "main" ]; then
+            echo "NAMESPACE=project" >> $GITHUB_ENV
+          else
+            echo "NAMESPACE=$BRANCH" >> $GITHUB_ENV
+          fi
 
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
@@ -80,25 +87,33 @@ jobs:
       - name: Set up Kustomize
         uses: imranismail/setup-kustomize@v2
 
+      # Create namespace if it doesn't exist
+      - name: Create namespace
+        run: |
+          kubectl create namespace $NAMESPACE || true
+          kubectl config set-context --current --namespace=$NAMESPACE
+
       # Deploy ToDo-Backend first (database dependency)
       - name: Deploy ToDo-Backend
         run: |
           cd ToDo-Backend/manifests/gke
+          kustomize edit set namespace $NAMESPACE
           kustomize edit set image PROJECT/TODO_BACKEND=$REGISTRY/$PROJECT_ID/todo-backend:${{ github.sha }}
           kustomize edit set image PROJECT/TODO_CRONJOB=$REGISTRY/$PROJECT_ID/todo-cronjob:${{ github.sha }}
           kustomize build . | kubectl apply -f -
-          kubectl rollout status deployment/todo-backend-dep -n project
+          kubectl rollout status deployment/todo-backend-dep -n $NAMESPACE
 
       # Deploy ToDo-App
       - name: Deploy ToDo-App
         run: |
           cd ToDo-App/manifests/gke
+          kustomize edit set namespace $NAMESPACE
           kustomize edit set image PROJECT/TODO_APP=$REGISTRY/$PROJECT_ID/todo-app:${{ github.sha }}
           kustomize build . | kubectl apply -f -
-          kubectl rollout status deployment/todo-app-dep -n project
+          kubectl rollout status deployment/todo-app-dep -n $NAMESPACE
 
       - name: Verify deployment
         run: |
-          kubectl get pods -n project
-          kubectl get gateway -n project
-
+          echo "Deployed to namespace: $NAMESPACE"
+          kubectl get pods -n $NAMESPACE
+          kubectl get gateway -n $NAMESPACE
