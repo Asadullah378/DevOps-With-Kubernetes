@@ -2,6 +2,10 @@ name: Deploy ToDo Project
 
 on:
   push:
+    branches:
+      - '**'  # All branches
+    tags-ignore:
+      - '**'  # Ignore all tags/releases
     paths:
       - 'ToDo-App/**'
       - 'ToDo-Backend/**'
