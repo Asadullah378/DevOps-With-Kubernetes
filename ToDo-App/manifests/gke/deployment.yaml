@@ -22,13 +22,6 @@ spec:
       containers:
         - name: todo-app
           image: PROJECT/TODO_APP
-          resources:
-            requests:
-              cpu: "1m"
-              memory: "8Mi"
-            limits:
-              cpu: "25m"
-              memory: "32Mi"
           envFrom:
             - configMapRef:
                 name: todo-app-configmap
