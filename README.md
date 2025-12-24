@@ -187,3 +187,7 @@
 
 ![Log Output](LogOutput/Screenshots/3.2.1.png)
 ![PingPong App](LogOutput/Screenshots/3.2.2.png)
+
+### Exercise 3.3: To the Gateway
+
+**Submission:** [3.3](https://github.com/Asadullah378/DevOps-With-Kubernetes/tree/3.3)

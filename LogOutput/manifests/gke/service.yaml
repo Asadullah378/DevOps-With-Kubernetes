@@ -4,11 +4,10 @@ metadata:
   namespace: exercises
   name: hashgenerator-svc
 spec:
-  type: NodePort
+  type: ClusterIP
   selector:
     app: hashgenerator
   ports:
     - port: 80
       protocol: TCP
       targetPort: 8000
-
