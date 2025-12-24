@@ -191,3 +191,7 @@
 ### Exercise 3.3: To the Gateway
 
 **Submission:** [3.3](https://github.com/Asadullah378/DevOps-With-Kubernetes/tree/3.3)
+
+### Exercise 3.4: Rewritten routing
+
+**Submission:** [3.4](https://github.com/Asadullah378/DevOps-With-Kubernetes/tree/3.4)
