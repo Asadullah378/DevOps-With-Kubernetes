@@ -84,7 +84,13 @@ def increment_counter():
 
 class PingPongHandler(BaseHTTPRequestHandler):
     def do_GET(self):
-        if self.path == "/pingpong":
+        if self.path == "/" or self.path == "/health":
+            # Health check endpoint for Ingress
+            self.send_response(200)
+            self.send_header("Content-Type", "text/plain")
+            self.end_headers()
+            self.wfile.write(b"ok")
+        elif self.path == "/pingpong":
             counter = get_counter()
             response = f"pong {counter}"
             increment_counter()

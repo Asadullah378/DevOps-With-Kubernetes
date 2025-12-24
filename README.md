@@ -178,3 +178,12 @@
 **PingPong App:**
 
 ![PingPong App](PingPong/Screenshots/3.1.png)
+
+### Exercise 3.2: Back to Ingress
+
+**Submission:** [3.2](https://github.com/Asadullah378/DevOps-With-Kubernetes/tree/3.2)
+
+**PingPong App\LogOutput:**
+
+![Log Output](LogOutput/Screenshots/3.2.1.png)
+![PingPong App](LogOutput/Screenshots/3.2.2.png)

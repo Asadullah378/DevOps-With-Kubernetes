@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: exercises
+  name: hashgenerator-dep
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hashgenerator
+  template:
+    metadata:
+      labels:
+        app: hashgenerator
+    spec:
+      volumes:
+        - name: shared-log
+          emptyDir: {}
+        - name: config-volume
+          configMap:
+            name: logoutput-configmap
+      containers:
+        - name: log-writer
+          image: gcr.io/dwk-gke-482214/log-writer:latest
+          volumeMounts:
+            - name: shared-log
+              mountPath: /usr/src/app/files
+        - name: log-reader
+          image: gcr.io/dwk-gke-482214/log-reader:latest
+          env:
+            - name: PORT
+              value: "8000"
+            - name: PINGPONG_URL
+              value: "http://pingpong-svc:80/pings"
+            - name: MESSAGE
+              valueFrom:
+                configMapKeyRef:
+                  name: logoutput-configmap
+                  key: MESSAGE
+          volumeMounts:
+            - name: shared-log
+              mountPath: /usr/src/app/files
+            - name: config-volume
+              mountPath: /usr/src/app/config
+
