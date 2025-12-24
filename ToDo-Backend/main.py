@@ -165,6 +165,12 @@ async def create_todo(todo_data: TodoCreate):
         raise HTTPException(status_code=500, detail="Database error")
 
 
+@app.get("/")
+async def root():
+    """Root endpoint for health checks"""
+    return {"status": "ok"}
+
+
 @app.get("/health")
 async def health_check():
     """Health check endpoint"""

@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  namespace: project
+  name: todo-app-configmap
+data:
+  PORT: "8000"
+  IMAGE_DIR: "/usr/src/app/images"
+  IMAGE_URL: "https://picsum.photos/1200"
+  CACHE_DURATION: "600"
+

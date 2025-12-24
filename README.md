@@ -195,3 +195,11 @@
 ### Exercise 3.4: Rewritten routing
 
 **Submission:** [3.4](https://github.com/Asadullah378/DevOps-With-Kubernetes/tree/3.4)
+
+### Exercise 3.5: The project, step 14
+
+**Submission:** [3.5](https://github.com/Asadullah378/DevOps-With-Kubernetes/tree/3.5)
+
+**ToDo App:**
+
+![ToDo App](ToDo-App/Screenshots/3.5.png)
