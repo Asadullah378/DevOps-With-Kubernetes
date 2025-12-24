@@ -223,3 +223,37 @@
 **ToDo App:**
 
 ![ToDo App](ToDo-App/Screenshots/3.8.png)
+
+### Exercise 3.9: DBaaS vs DIY
+
+**Submission:** [3.9](https://github.com/Asadullah378/DevOps-With-Kubernetes/tree/3.9)
+
+#### Comparison: Database as a Service (DBaaS) vs DIY (Self-managed with PersistentVolumes)
+
+| Aspect | DBaaS (e.g., Google Cloud SQL) | DIY (StatefulSet + PVC) |
+|--------|-------------------------------|------------------------|
+| **Initial Setup** | Quick - few clicks/commands in cloud console | More work - need to configure StatefulSet, PVC, secrets, services |
+| **Cost** | Higher - pay for managed service premium | Lower - only pay for compute and storage resources |
+| **Maintenance** | Minimal - provider handles patches, updates | Full responsibility - must manage updates, security patches |
+| **Scaling** | Easy - usually just a slider/config change | Manual - need to understand StatefulSet scaling, may need to reconfigure |
+| **Backups** | Automated - built-in scheduled backups, point-in-time recovery | Manual setup - need to configure CronJobs for pg_dump or use tools like Velero |
+| **High Availability** | Built-in - automatic failover, replicas | Complex - must configure replication, failover manually |
+| **Disaster Recovery** | Included - cross-region replication available | DIY - need to set up cross-region backup strategies |
+| **Performance Tuning** | Limited - some parameters exposed | Full control - can tune all database parameters |
+| **Vendor Lock-in** | Higher - tied to cloud provider's offering | Lower - portable across any Kubernetes cluster |
+| **Learning Curve** | Lower - abstracted complexity | Higher - need to understand Kubernetes storage, StatefulSets |
+| **Monitoring** | Included - built-in dashboards and alerts | DIY - need to set up Prometheus, Grafana, etc. |
+| **Connection Security** | Managed - SSL/TLS configured automatically | Manual - need to configure certificates |
+
+#### When to Choose DBaaS:
+- Production workloads requiring high availability
+- Teams without dedicated database expertise
+- When time-to-market is critical
+- Compliance requirements needing managed backups and audit logs
+
+#### When to Choose DIY:
+- Development/testing environments
+- Cost-sensitive projects
+- Need for full control over database configuration
+- Multi-cloud or hybrid cloud strategies
+- Learning and educational purposes
