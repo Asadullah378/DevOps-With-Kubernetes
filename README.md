@@ -257,3 +257,11 @@
 - Need for full control over database configuration
 - Multi-cloud or hybrid cloud strategies
 - Learning and educational purposes
+
+### Exercise 3.10: The project, step 18
+
+**Submission:** [3.10](https://github.com/Asadullah378/DevOps-With-Kubernetes/tree/3.10)
+
+**ToDo App:**
+
+![ToDo App](ToDo-App/Screenshots/3.10.png)
