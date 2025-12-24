@@ -1,0 +1,55 @@
+name: Cleanup ToDo Project Environment
+
+on:
+  delete:
+    branches-ignore:
+      - main  # Never delete the main/project namespace
+
+env:
+  PROJECT_ID: ${{ secrets.GKE_PROJECT }}
+  GKE_CLUSTER: dwk-cluster
+  GKE_ZONE: europe-north1-b
+
+jobs:
+  cleanup:
+    name: Delete branch environment
+    runs-on: ubuntu-latest
+    environment: DWK
+    # Only run for branch deletions, not tag deletions
+    if: github.event.ref_type == 'branch'
+
+    steps:
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: '${{ secrets.GKE_SA_KEY }}'
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Get GKE credentials
+        uses: google-github-actions/get-gke-credentials@v2
+        with:
+          cluster_name: '${{ env.GKE_CLUSTER }}'
+          project_id: '${{ env.PROJECT_ID }}'
+          location: '${{ env.GKE_ZONE }}'
+
+      - name: Delete namespace
+        run: |
+          NAMESPACE="${{ github.event.ref }}"
+          echo "Deleting namespace: $NAMESPACE"
+          
+          # Don't delete the project namespace (extra safety)
+          if [ "$NAMESPACE" == "project" ] || [ "$NAMESPACE" == "main" ]; then
+            echo "Skipping deletion of protected namespace: $NAMESPACE"
+            exit 0
+          fi
+          
+          # Check if namespace exists before deleting
+          if kubectl get namespace "$NAMESPACE" > /dev/null 2>&1; then
+            kubectl delete namespace "$NAMESPACE"
+            echo "Namespace $NAMESPACE deleted successfully"
+          else
+            echo "Namespace $NAMESPACE does not exist, nothing to delete"
+          fi
+
