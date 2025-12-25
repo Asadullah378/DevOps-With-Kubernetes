@@ -191,6 +191,7 @@ async def root():
             }
             .todo-text {
                 flex: 1;
+                word-break: break-word;
             }
             .toggle-btn {
                 padding: 5px 12px;

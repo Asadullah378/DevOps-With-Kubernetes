@@ -312,3 +312,11 @@
 **Argo Rollout:**
 
 ![Argo Rollout](PingPong/Screenshots/4.4.png)
+
+### Exercise 4.5: The project, step 22
+
+**Submission:** [4.5](https://github.com/Asadullah378/DevOps-With-Kubernetes/tree/4.5)
+
+**ToDo App:**
+
+![ToDo App](ToDo-App/Screenshots/4.5.png)
