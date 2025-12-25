@@ -304,3 +304,11 @@
 **Prometheus:**
 
 ![Prometheus](ToDo-App/Screenshots/4.3.png)
+
+### Exercise 4.4: Your canary
+
+**Submission:** [4.4](https://github.com/Asadullah378/DevOps-With-Kubernetes/tree/4.4)
+
+**Argo Rollout:**
+
+![Argo Rollout](PingPong/Screenshots/4.4.png)
