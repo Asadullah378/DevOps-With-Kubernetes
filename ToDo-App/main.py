@@ -114,11 +114,14 @@ async def root():
                 padding: 20px;
                 max-width: 800px;
                 margin: 0 auto;
+                background-color: #f5f5f5;
             }
             img {
                 max-width: 400px;
                 width: 100%;
                 margin: 20px 0;
+                border-radius: 8px;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.1);
             }
             .todo-form {
                 margin: 20px 0;
@@ -148,16 +151,73 @@ async def root():
                 color: #666;
                 margin-top: 5px;
             }
-            .todo-list {
-                list-style: none;
-                padding: 0;
+            .todo-section {
                 text-align: left;
                 max-width: 500px;
                 margin: 20px auto;
+                background: white;
+                border-radius: 8px;
+                padding: 15px;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+            .todo-section h2 {
+                margin: 0 0 15px 0;
+                font-size: 18px;
+                color: #333;
+                border-bottom: 2px solid #007bff;
+                padding-bottom: 8px;
+            }
+            .todo-section.done h2 {
+                border-bottom-color: #28a745;
+            }
+            .todo-list {
+                list-style: none;
+                padding: 0;
+                margin: 0;
             }
             .todo-list li {
-                padding: 10px;
+                padding: 12px;
                 border-bottom: 1px solid #eee;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+            .todo-list li:last-child {
+                border-bottom: none;
+            }
+            .todo-list li.done-item span {
+                text-decoration: line-through;
+                color: #888;
+            }
+            .todo-text {
+                flex: 1;
+            }
+            .toggle-btn {
+                padding: 5px 12px;
+                font-size: 12px;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+                transition: all 0.2s;
+            }
+            .toggle-btn.mark-done {
+                background-color: #28a745;
+                color: white;
+            }
+            .toggle-btn.mark-done:hover {
+                background-color: #218838;
+            }
+            .toggle-btn.mark-undone {
+                background-color: #ffc107;
+                color: #333;
+            }
+            .toggle-btn.mark-undone:hover {
+                background-color: #e0a800;
+            }
+            .empty-message {
+                color: #888;
+                font-style: italic;
+                padding: 10px 0;
             }
         </style>
     </head>
@@ -171,14 +231,25 @@ async def root():
             <div class="char-count"><span id="charCount">0</span>/140</div>
         </div>
         
-        <ul class="todo-list" id="todoList">
-            <li>Loading...</li>
-        </ul>
+        <div class="todo-section">
+            <h2>Tasks</h2>
+            <ul class="todo-list" id="pendingList">
+                <li>Loading...</li>
+            </ul>
+        </div>
+        
+        <div class="todo-section done">
+            <h2>Done</h2>
+            <ul class="todo-list" id="doneList">
+                <li>Loading...</li>
+            </ul>
+        </div>
         
         <script>
             const input = document.getElementById('todoInput');
             const charCount = document.getElementById('charCount');
-            const todoList = document.getElementById('todoList');
+            const pendingList = document.getElementById('pendingList');
+            const doneList = document.getElementById('doneList');
             
             input.addEventListener('input', function() {
                 charCount.textContent = this.value.length;
@@ -191,15 +262,56 @@ async def root():
                     renderTodos(todos);
                 } catch (error) {
                     console.error('Error fetching todos:', error);
-                    todoList.innerHTML = '<li>Error loading todos</li>';
+                    pendingList.innerHTML = '<li class="empty-message">Error loading todos</li>';
+                    doneList.innerHTML = '<li class="empty-message">Error loading todos</li>';
                 }
             }
             
             function renderTodos(todos) {
-                if (todos.length === 0) {
-                    todoList.innerHTML = '<li>No todos yet. Add one!</li>';
+                const pending = todos.filter(t => !t.done);
+                const done = todos.filter(t => t.done);
+                
+                if (pending.length === 0) {
+                    pendingList.innerHTML = '<li class="empty-message">No pending tasks. Add one!</li>';
                 } else {
-                    todoList.innerHTML = todos.map(t => `<li>${t.todo}</li>`).join('');
+                    pendingList.innerHTML = pending.map(t => `
+                        <li>
+                            <span class="todo-text">${escapeHtml(t.todo)}</span>
+                            <button class="toggle-btn mark-done" onclick="toggleDone(${t.id}, true)">Done</button>
+                        </li>
+                    `).join('');
+                }
+                
+                if (done.length === 0) {
+                    doneList.innerHTML = '<li class="empty-message">No completed tasks yet.</li>';
+                } else {
+                    doneList.innerHTML = done.map(t => `
+                        <li class="done-item">
+                            <span class="todo-text">${escapeHtml(t.todo)}</span>
+                            <button class="toggle-btn mark-undone" onclick="toggleDone(${t.id}, false)">Undo</button>
+                        </li>
+                    `).join('');
+                }
+            }
+            
+            function escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+            
+            async function toggleDone(id, done) {
+                try {
+                    const response = await fetch(`/todos/${id}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ done: done })
+                    });
+                    if (response.ok) {
+                        fetchTodos();
+                    }
+                } catch (error) {
+                    console.error('Error updating todo:', error);
                 }
             }
             

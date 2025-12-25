@@ -98,8 +98,13 @@ def init_db():
             cur.execute("""
                 CREATE TABLE IF NOT EXISTS todos (
                     id SERIAL PRIMARY KEY,
-                    todo VARCHAR(140) NOT NULL
+                    todo VARCHAR(140) NOT NULL,
+                    done BOOLEAN NOT NULL DEFAULT FALSE
                 )
+            """)
+            # Add done column if it doesn't exist (for existing databases)
+            cur.execute("""
+                ALTER TABLE todos ADD COLUMN IF NOT EXISTS done BOOLEAN NOT NULL DEFAULT FALSE
             """)
             conn.commit()
             cur.close()
@@ -117,6 +122,10 @@ class TodoCreate(BaseModel):
     todo: str = Field(..., max_length=140)
 
 
+class TodoUpdate(BaseModel):
+    done: bool
+
+
 @app.get("/todos")
 async def get_todos():
     """Get all todos from database"""
@@ -124,11 +133,11 @@ async def get_todos():
     try:
         conn = get_db_connection()
         cur = conn.cursor()
-        cur.execute("SELECT id, todo FROM todos ORDER BY id")
+        cur.execute("SELECT id, todo, done FROM todos ORDER BY done, id")
         rows = cur.fetchall()
         cur.close()
         conn.close()
-        todos = [{"id": row[0], "todo": row[1]} for row in rows]
+        todos = [{"id": row[0], "todo": row[1], "done": row[2]} for row in rows]
         logger.info(f"Retrieved {len(todos)} todos")
         return todos
     except Exception as e:
@@ -150,18 +159,48 @@ async def create_todo(todo_data: TodoCreate):
         conn = get_db_connection()
         cur = conn.cursor()
         cur.execute(
-            "INSERT INTO todos (todo) VALUES (%s) RETURNING id, todo",
+            "INSERT INTO todos (todo, done) VALUES (%s, FALSE) RETURNING id, todo, done",
             (todo_data.todo,)
         )
         row = cur.fetchone()
         conn.commit()
         cur.close()
         conn.close()
-        new_todo = {"id": row[0], "todo": row[1]}
+        new_todo = {"id": row[0], "todo": row[1], "done": row[2]}
         logger.info(f"SUCCESS: Created todo with id={new_todo['id']}")
         return new_todo
     except Exception as e:
         logger.error(f"Error creating todo: {e}")
+        raise HTTPException(status_code=500, detail="Database error")
+
+
+@app.put("/todos/{todo_id}")
+async def update_todo(todo_id: int, todo_data: TodoUpdate):
+    """Update a todo's done status"""
+    logger.info(f"Updating todo {todo_id}: done={todo_data.done}")
+    
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor()
+        cur.execute(
+            "UPDATE todos SET done = %s WHERE id = %s RETURNING id, todo, done",
+            (todo_data.done, todo_id)
+        )
+        row = cur.fetchone()
+        if row is None:
+            cur.close()
+            conn.close()
+            raise HTTPException(status_code=404, detail="Todo not found")
+        conn.commit()
+        cur.close()
+        conn.close()
+        updated_todo = {"id": row[0], "todo": row[1], "done": row[2]}
+        logger.info(f"SUCCESS: Updated todo {todo_id} - done={updated_todo['done']}")
+        return updated_todo
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error updating todo: {e}")
         raise HTTPException(status_code=500, detail="Database error")
 
 
