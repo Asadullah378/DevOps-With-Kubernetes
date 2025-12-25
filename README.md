@@ -296,3 +296,11 @@
 ### Exercise 4.2: The project, step 21
 
 **Submission:** [4.2](https://github.com/Asadullah378/DevOps-With-Kubernetes/tree/4.2)
+
+### Exercise 4.3: Prometheus
+
+**Submission:** [4.3](https://github.com/Asadullah378/DevOps-With-Kubernetes/tree/4.3)
+
+**Prometheus:**
+
+![Prometheus](ToDo-App/Screenshots/4.3.png)
