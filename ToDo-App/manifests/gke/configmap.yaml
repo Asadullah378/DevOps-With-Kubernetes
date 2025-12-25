@@ -8,4 +8,5 @@ data:
   IMAGE_DIR: "/usr/src/app/images"
   IMAGE_URL: "https://picsum.photos/1200"
   CACHE_DURATION: "600"
+  BACKEND_URL: "http://todo-backend-svc:80"
 

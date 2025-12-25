@@ -177,6 +177,21 @@ async def health_check():
     return {"status": "healthy"}
 
 
+@app.get("/healthz")
+async def readiness_check():
+    """Readiness probe - checks database connectivity"""
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor()
+        cur.execute("SELECT 1")
+        cur.close()
+        conn.close()
+        return {"status": "ready", "database": "connected"}
+    except Exception as e:
+        logger.error(f"Readiness check failed: {e}")
+        raise HTTPException(status_code=500, detail=f"Database connection failed: {e}")
+
+
 if __name__ == "__main__":
     logger.info("Starting ToDo Backend...")
     init_db()

@@ -25,6 +25,12 @@ spec:
           envFrom:
             - configMapRef:
                 name: todo-app-configmap
+          readinessProbe:
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            httpGet:
+              path: /healthz
+              port: 8000
           volumeMounts:
             - name: todo-images
               mountPath: /usr/src/app/images

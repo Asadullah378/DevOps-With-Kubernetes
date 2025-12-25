@@ -2,7 +2,7 @@ import os
 import time
 import httpx
 import uvicorn
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.responses import HTMLResponse, FileResponse
 from pathlib import Path
 
@@ -14,6 +14,7 @@ IMAGE_FILE = IMAGE_DIR / "daily_image.jpg"
 TIMESTAMP_FILE = IMAGE_DIR / "timestamp.txt"
 CACHE_DURATION = int(os.getenv("CACHE_DURATION", "600"))  # seconds
 IMAGE_URL = os.getenv("IMAGE_URL", "https://picsum.photos/1200")
+BACKEND_URL = os.getenv("BACKEND_URL", "http://todo-backend-svc:80")
 
 
 def ensure_image_dir():
@@ -79,6 +80,19 @@ async def get_image():
         return FileResponse(IMAGE_FILE, media_type="image/jpeg")
     else:
         return HTMLResponse(content="<p>Image not available</p>", status_code=503)
+
+
+@app.get("/healthz")
+async def readiness_check():
+    """Readiness probe - checks backend connectivity"""
+    try:
+        with httpx.Client(timeout=5.0) as client:
+            response = client.get(f"{BACKEND_URL}/healthz")
+            response.raise_for_status()
+        return {"status": "ready", "backend": "connected"}
+    except Exception as e:
+        print(f"Readiness check failed: {e}")
+        raise HTTPException(status_code=500, detail=f"Backend connection failed: {e}")
 
 
 @app.get("/", response_class=HTMLResponse)

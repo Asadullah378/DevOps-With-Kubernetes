@@ -292,3 +292,7 @@
 ![PingPong App](PingPong/Screenshots/4.1.1.png)
 
 ![PingPong App](PingPong/Screenshots/4.1.2.png)
+
+### Exercise 4.2: The project, step 21
+
+**Submission:** [4.2](https://github.com/Asadullah378/DevOps-With-Kubernetes/tree/4.2)

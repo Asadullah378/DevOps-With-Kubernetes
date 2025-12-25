@@ -30,4 +30,10 @@ spec:
                 secretKeyRef:
                   name: todo-postgres-secret
                   key: POSTGRES_PASSWORD
+          readinessProbe:
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            httpGet:
+              path: /healthz
+              port: 3000
 
