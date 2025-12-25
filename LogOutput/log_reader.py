@@ -60,6 +60,21 @@ class LogHandler(BaseHTTPRequestHandler):
                 self.send_header("Content-Type", "text/plain")
                 self.end_headers()
                 self.wfile.write(b"Log file not ready yet")
+        elif self.path == "/healthz":
+            # Readiness probe - checks connectivity to PingPong service
+            try:
+                with urllib.request.urlopen(PINGPONG_URL, timeout=5) as response:
+                    response.read()
+                self.send_response(200)
+                self.send_header("Content-Type", "text/plain")
+                self.end_headers()
+                self.wfile.write(b"ok")
+            except Exception as e:
+                print(f"Health check failed: {e}")
+                self.send_response(500)
+                self.send_header("Content-Type", "text/plain")
+                self.end_headers()
+                self.wfile.write(f"PingPong connection failed: {e}".encode())
         else:
             self.send_response(404)
             self.end_headers()

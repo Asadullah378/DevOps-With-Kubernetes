@@ -94,11 +94,29 @@ class PingPongHandler(BaseHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(response.encode())
         elif self.path == "/health":
-            # Health check endpoint
+            # Simple health check endpoint
             self.send_response(200)
             self.send_header("Content-Type", "text/plain")
             self.end_headers()
             self.wfile.write(b"ok")
+        elif self.path == "/healthz":
+            # Readiness probe - checks database connectivity
+            try:
+                conn = get_db_connection()
+                cur = conn.cursor()
+                cur.execute("SELECT 1")
+                cur.close()
+                conn.close()
+                self.send_response(200)
+                self.send_header("Content-Type", "text/plain")
+                self.end_headers()
+                self.wfile.write(b"ok")
+            except Exception as e:
+                print(f"Health check failed: {e}")
+                self.send_response(500)
+                self.send_header("Content-Type", "text/plain")
+                self.end_headers()
+                self.wfile.write(f"Database connection failed: {e}".encode())
         elif self.path == "/pings":
             # Endpoint for LogOutput to get the current count
             counter = get_counter()

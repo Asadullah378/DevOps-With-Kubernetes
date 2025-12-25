@@ -29,3 +29,9 @@ spec:
               value: "pingpong"
             - name: DB_PASSWORD
               value: "pingpong"
+          readinessProbe:
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            httpGet:
+              path: /healthz
+              port: 3000

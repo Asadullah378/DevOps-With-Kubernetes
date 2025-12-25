@@ -171,6 +171,8 @@
 
 ![ToDo App](ToDo-App/Screenshots/2.10.png)
 
+## Chapter 4
+
 ### Exercise 3.1: Pingpong GKE
 
 **Submission:** [3.1](https://github.com/Asadullah378/DevOps-With-Kubernetes/tree/3.1)
@@ -278,3 +280,15 @@
 
 ![ToDo App](ToDo-App/Screenshots/3.12.1.png)
 ![ToDo App](ToDo-App/Screenshots/3.12.2.png)
+
+## Chapter 5
+
+### Exercise 4.1: Readiness probe
+
+**Submission:** [4.1](https://github.com/Asadullah378/DevOps-With-Kubernetes/tree/4.1)
+
+**PingPong App/LogOutput:**
+
+![PingPong App](PingPong/Screenshots/4.1.1.png)
+
+![PingPong App](PingPong/Screenshots/4.1.2.png)

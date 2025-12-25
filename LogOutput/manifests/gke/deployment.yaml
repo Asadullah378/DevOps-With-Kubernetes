@@ -37,6 +37,12 @@ spec:
                 configMapKeyRef:
                   name: logoutput-configmap
                   key: MESSAGE
+          readinessProbe:
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            httpGet:
+              path: /healthz
+              port: 8000
           volumeMounts:
             - name: shared-log
               mountPath: /usr/src/app/files
