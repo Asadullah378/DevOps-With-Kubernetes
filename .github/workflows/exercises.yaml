@@ -37,12 +37,12 @@ jobs:
       # Build and push LogOutput images
       - name: Build and Push log-writer
         run: |
-          docker build -t $REGISTRY/$PROJECT_ID/log-writer:${{ github.sha }} ./LogOutput/log-writer
+          docker build -f ./LogOutput/Dockerfile.writer -t $REGISTRY/$PROJECT_ID/log-writer:${{ github.sha }} ./LogOutput
           docker push $REGISTRY/$PROJECT_ID/log-writer:${{ github.sha }}
 
       - name: Build and Push log-reader
         run: |
-          docker build -t $REGISTRY/$PROJECT_ID/log-reader:${{ github.sha }} ./LogOutput/log-reader
+          docker build -f ./LogOutput/Dockerfile.reader -t $REGISTRY/$PROJECT_ID/log-reader:${{ github.sha }} ./LogOutput
           docker push $REGISTRY/$PROJECT_ID/log-reader:${{ github.sha }}
 
       # Build and push PingPong image
