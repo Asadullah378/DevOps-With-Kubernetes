@@ -9,6 +9,7 @@ on:
     paths:
       - 'ToDo-App/**'
       - 'ToDo-Backend/**'
+      - 'Broadcaster/**'
       - '.github/workflows/project.yaml'
 
 env:
@@ -98,6 +99,17 @@ jobs:
           docker push $REGISTRY/$PROJECT_ID/todo-backup:${{ github.sha }}
           docker push $REGISTRY/$PROJECT_ID/todo-backup:latest
 
+      # Build and push Broadcaster
+      - name: Build Broadcaster
+        run: |
+          docker build -t $REGISTRY/$PROJECT_ID/broadcaster:${{ github.sha }} ./Broadcaster
+          docker build -t $REGISTRY/$PROJECT_ID/broadcaster:latest ./Broadcaster
+
+      - name: Push Broadcaster
+        run: |
+          docker push $REGISTRY/$PROJECT_ID/broadcaster:${{ github.sha }}
+          docker push $REGISTRY/$PROJECT_ID/broadcaster:latest
+
       # Set up Kustomize
       - name: Set up Kustomize
         uses: imranismail/setup-kustomize@v2
@@ -121,6 +133,8 @@ jobs:
         run: |
           cd ToDo-Backend/manifests/gke
           sops --decrypt secret.enc.yaml > secret.yaml
+          cd ../../../Broadcaster/manifests/gke
+          sops --decrypt secret.enc.yaml > secret.yaml
 
       # Deploy ToDo-Backend first (database dependency)
       - name: Deploy ToDo-Backend
@@ -141,6 +155,15 @@ jobs:
           kustomize edit set image PROJECT/TODO_APP=$REGISTRY/$PROJECT_ID/todo-app:${{ github.sha }}
           kustomize build . | kubectl apply -f -
           kubectl rollout status deployment/todo-app-dep -n $NAMESPACE
+
+      # Deploy Broadcaster (6 replicas with NATS queue group for no duplicates)
+      - name: Deploy Broadcaster
+        run: |
+          cd Broadcaster/manifests/gke
+          kustomize edit set namespace $NAMESPACE
+          kustomize edit set image PROJECT/BROADCASTER=$REGISTRY/$PROJECT_ID/broadcaster:${{ github.sha }}
+          kustomize build . | kubectl apply -f -
+          kubectl rollout status deployment/broadcaster-dep -n $NAMESPACE
 
       - name: Verify deployment
         run: |

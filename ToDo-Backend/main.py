@@ -3,8 +3,10 @@ import sys
 import time
 import logging
 import json
+import asyncio
 import psycopg2
 import uvicorn
+import nats
 from datetime import datetime
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -21,6 +23,43 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 app = FastAPI(title="ToDo Backend")
+
+# NATS configuration
+NATS_URL = os.getenv("NATS_URL", "nats://my-nats:4222")
+NATS_SUBJECT = "todos"
+nats_client = None
+
+
+async def get_nats_client():
+    """Get or create NATS client connection"""
+    global nats_client
+    if nats_client is None or not nats_client.is_connected:
+        try:
+            nats_client = await nats.connect(servers=[NATS_URL])
+            logger.info(f"Connected to NATS at {NATS_URL}")
+        except Exception as e:
+            logger.warning(f"Failed to connect to NATS: {e}")
+            return None
+    return nats_client
+
+
+async def publish_todo_event(action: str, todo: dict):
+    """Publish todo event to NATS"""
+    try:
+        nc = await get_nats_client()
+        if nc is None:
+            logger.warning("NATS not available, skipping event publish")
+            return
+        
+        message = {
+            "action": action,
+            "todo": todo,
+            "timestamp": datetime.utcnow().isoformat()
+        }
+        await nc.publish(NATS_SUBJECT, json.dumps(message).encode())
+        logger.info(f"Published {action} event for todo {todo.get('id')} to NATS")
+    except Exception as e:
+        logger.error(f"Failed to publish to NATS: {e}")
 
 # Enable CORS for frontend
 app.add_middleware(
@@ -168,6 +207,10 @@ async def create_todo(todo_data: TodoCreate):
         conn.close()
         new_todo = {"id": row[0], "todo": row[1], "done": row[2]}
         logger.info(f"SUCCESS: Created todo with id={new_todo['id']}")
+        
+        # Publish event to NATS
+        await publish_todo_event("created", new_todo)
+        
         return new_todo
     except Exception as e:
         logger.error(f"Error creating todo: {e}")
@@ -196,6 +239,10 @@ async def update_todo(todo_id: int, todo_data: TodoUpdate):
         conn.close()
         updated_todo = {"id": row[0], "todo": row[1], "done": row[2]}
         logger.info(f"SUCCESS: Updated todo {todo_id} - done={updated_todo['done']}")
+        
+        # Publish event to NATS
+        await publish_todo_event("updated", updated_todo)
+        
         return updated_todo
     except HTTPException:
         raise

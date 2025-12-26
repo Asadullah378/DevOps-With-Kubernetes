@@ -9,4 +9,5 @@ data:
   DB_PORT: "5432"
   DB_NAME: "tododb"
   GCS_BUCKET: "todo-db-backup-bucket"
+  NATS_URL: "nats://my-nats.project.svc.cluster.local:4222"
 
