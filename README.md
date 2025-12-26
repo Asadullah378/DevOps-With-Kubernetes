@@ -347,3 +347,15 @@
 ![PingPong](PingPong/Screenshots/4.7.1.png)
 
 ![LogOutput](LogOutput/Screenshots/4.7.2.png)
+
+### Exercise 4.8: The project, step 24
+
+**Submission:** [4.8](https://github.com/Asadullah378/DevOps-With-Kubernetes/tree/4.8)
+
+**ToDo App:**
+
+![ToDo App](ToDo-App/Screenshots/4.8.1.png)
+
+![ToDo App](ToDo-App/Screenshots/4.8.2.png)
+
+![ToDo App](ToDo-App/Screenshots/4.8.3.png)
