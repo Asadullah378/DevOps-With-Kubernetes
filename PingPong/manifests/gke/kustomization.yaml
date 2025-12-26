@@ -2,11 +2,10 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 namespace: exercises
 resources:
-  - postgres.yaml
-  - deployment.yaml
-  - service.yaml
+- postgres.yaml
+- deployment.yaml
+- service.yaml
 images:
-  - name: gcr.io/dwk-gke-482214/pingpong
-    newName: gcr.io/dwk-gke-482214/pingpong
-    newTag: latest
-
+- name: gcr.io/dwk-gke-482214/pingpong
+  newName: gcr.io/dwk-gke-482214/pingpong
+  newTag: 49fe8f1f30a79b34ef4e534f7c0e0c8d2cd9e41a
