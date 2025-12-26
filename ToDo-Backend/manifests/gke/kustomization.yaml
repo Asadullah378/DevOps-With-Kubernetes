@@ -1,19 +1,21 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 namespace: project
-resources:
   # Note: secret.yaml is managed separately (encrypted with SOPS)
-  - configmap.yaml
-  - postgres.yaml
-  - deployment.yaml
-  - service.yaml
-  - cronjob.yaml
-  - backup-cronjob.yaml
+resources:
+- configmap.yaml
+- postgres.yaml
+- deployment.yaml
+- service.yaml
+- cronjob.yaml
+- backup-cronjob.yaml
 images:
-  - name: PROJECT/TODO_BACKEND
-    newName: gcr.io/dwk-gke-482214/todo-backend
-  - name: PROJECT/TODO_CRONJOB
-    newName: gcr.io/dwk-gke-482214/todo-cronjob
-  - name: PROJECT/TODO_BACKUP
-    newName: gcr.io/dwk-gke-482214/todo-backup
-
+- name: PROJECT/TODO_BACKEND
+  newName: gcr.io/dwk-gke-482214/todo-backend
+  newTag: 28c777e1953e5dcf3d040d0157634f479212c26a
+- name: PROJECT/TODO_BACKUP
+  newName: gcr.io/dwk-gke-482214/todo-backup
+  newTag: 28c777e1953e5dcf3d040d0157634f479212c26a
+- name: PROJECT/TODO_CRONJOB
+  newName: gcr.io/dwk-gke-482214/todo-cronjob
+  newTag: 28c777e1953e5dcf3d040d0157634f479212c26a
