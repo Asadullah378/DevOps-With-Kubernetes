@@ -55,20 +55,37 @@ async def message_handler(msg):
         data = json.loads(msg.data.decode())
         action = data.get("action", "unknown")
         todo = data.get("todo", {})
+        timestamp = data.get("timestamp", "N/A")
         
-        todo_text = todo.get("todo", "")[:50]
         todo_id = todo.get("id", "?")
+        todo_text = todo.get("todo", "")
         done_status = todo.get("done", False)
         
+        # Build verbose message with full details
         if action == "created":
-            message = f"📝 New todo created (ID: {todo_id}): {todo_text}..."
+            emoji = "📝"
+            action_text = "NEW TODO CREATED"
         elif action == "updated":
-            status = "✅ completed" if done_status else "🔄 reopened"
-            message = f"Todo {todo_id} {status}: {todo_text}..."
+            emoji = "✅" if done_status else "🔄"
+            action_text = "TODO MARKED COMPLETE" if done_status else "TODO REOPENED"
         else:
-            message = f"Todo action '{action}' on ID {todo_id}"
+            emoji = "ℹ️"
+            action_text = f"TODO ACTION: {action.upper()}"
         
-        logger.info(f"Received message: {message}")
+        message = f"""
+{emoji} **{action_text}** {emoji}
+━━━━━━━━━━━━━━━━━━━━━
+**ID:** {todo_id}
+**Task:** {todo_text}
+**Status:** {"✅ Done" if done_status else "⏳ Pending"}
+**Timestamp:** {timestamp}
+━━━━━━━━━━━━━━━━━━━━━
+```json
+{json.dumps(data, indent=2)}
+```
+""".strip()
+        
+        logger.info(f"Received {action} event for todo {todo_id}")
         await send_discord_message(message)
         
     except json.JSONDecodeError as e:
