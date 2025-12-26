@@ -1,11 +1,9 @@
-name: Deploy ToDo Project
+name: Build ToDo Project (GitOps)
 
 on:
   push:
     branches:
-      - '**'  # All branches
-    tags-ignore:
-      - '**'  # Ignore all tags/releases
+      - main
     paths:
       - 'ToDo-App/**'
       - 'ToDo-Backend/**'
@@ -14,28 +12,20 @@ on:
 
 env:
   PROJECT_ID: ${{ secrets.GKE_PROJECT }}
-  GKE_CLUSTER: dwk-cluster
-  GKE_ZONE: europe-north1-b
   REGISTRY: gcr.io
-  BRANCH: ${{ github.ref_name }}
+
+permissions:
+  contents: write
 
 jobs:
-  build-publish-deploy:
-    name: Build, Publish and Deploy
+  build-publish:
+    name: Build, Push, Release
     runs-on: ubuntu-latest
     environment: DWK
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
-      - name: Set namespace
-        run: |
-          if [ "$BRANCH" == "main" ]; then
-            echo "NAMESPACE=project" >> $GITHUB_ENV
-          else
-            echo "NAMESPACE=$BRANCH" >> $GITHUB_ENV
-          fi
 
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
@@ -48,125 +38,67 @@ jobs:
       - name: Configure Docker for GCR
         run: gcloud --quiet auth configure-docker
 
-      - name: Get GKE credentials
-        uses: google-github-actions/get-gke-credentials@v2
-        with:
-          cluster_name: '${{ env.GKE_CLUSTER }}'
-          project_id: '${{ env.PROJECT_ID }}'
-          location: '${{ env.GKE_ZONE }}'
-
       # Build and push ToDo-App
-      - name: Build ToDo-App
+      - name: Build and Push ToDo-App
         run: |
           docker build -t $REGISTRY/$PROJECT_ID/todo-app:${{ github.sha }} ./ToDo-App
-          docker build -t $REGISTRY/$PROJECT_ID/todo-app:latest ./ToDo-App
-
-      - name: Push ToDo-App
-        run: |
           docker push $REGISTRY/$PROJECT_ID/todo-app:${{ github.sha }}
-          docker push $REGISTRY/$PROJECT_ID/todo-app:latest
 
       # Build and push ToDo-Backend
-      - name: Build ToDo-Backend
+      - name: Build and Push ToDo-Backend
         run: |
           docker build -t $REGISTRY/$PROJECT_ID/todo-backend:${{ github.sha }} ./ToDo-Backend
-          docker build -t $REGISTRY/$PROJECT_ID/todo-backend:latest ./ToDo-Backend
-
-      - name: Push ToDo-Backend
-        run: |
           docker push $REGISTRY/$PROJECT_ID/todo-backend:${{ github.sha }}
-          docker push $REGISTRY/$PROJECT_ID/todo-backend:latest
 
       # Build and push ToDo-CronJob
-      - name: Build ToDo-CronJob
+      - name: Build and Push ToDo-CronJob
         run: |
           docker build -t $REGISTRY/$PROJECT_ID/todo-cronjob:${{ github.sha }} ./ToDo-Backend/cronjob
-          docker build -t $REGISTRY/$PROJECT_ID/todo-cronjob:latest ./ToDo-Backend/cronjob
-
-      - name: Push ToDo-CronJob
-        run: |
           docker push $REGISTRY/$PROJECT_ID/todo-cronjob:${{ github.sha }}
-          docker push $REGISTRY/$PROJECT_ID/todo-cronjob:latest
 
       # Build and push ToDo-Backup
-      - name: Build ToDo-Backup
+      - name: Build and Push ToDo-Backup
         run: |
           docker build -t $REGISTRY/$PROJECT_ID/todo-backup:${{ github.sha }} ./ToDo-Backend/backup
-          docker build -t $REGISTRY/$PROJECT_ID/todo-backup:latest ./ToDo-Backend/backup
-
-      - name: Push ToDo-Backup
-        run: |
           docker push $REGISTRY/$PROJECT_ID/todo-backup:${{ github.sha }}
-          docker push $REGISTRY/$PROJECT_ID/todo-backup:latest
 
       # Build and push Broadcaster
-      - name: Build Broadcaster
+      - name: Build and Push Broadcaster
         run: |
           docker build -t $REGISTRY/$PROJECT_ID/broadcaster:${{ github.sha }} ./Broadcaster
-          docker build -t $REGISTRY/$PROJECT_ID/broadcaster:latest ./Broadcaster
-
-      - name: Push Broadcaster
-        run: |
           docker push $REGISTRY/$PROJECT_ID/broadcaster:${{ github.sha }}
-          docker push $REGISTRY/$PROJECT_ID/broadcaster:latest
 
       # Set up Kustomize
       - name: Set up Kustomize
         uses: imranismail/setup-kustomize@v2
 
-      # Create namespace if it doesn't exist
-      - name: Create namespace
-        run: |
-          kubectl create namespace $NAMESPACE || true
-          kubectl config set-context --current --namespace=$NAMESPACE
-
-      # Decrypt secrets using SOPS
-      - name: Install SOPS
-        run: |
-          curl -LO https://github.com/getsops/sops/releases/download/v3.8.1/sops-v3.8.1.linux.amd64
-          sudo mv sops-v3.8.1.linux.amd64 /usr/local/bin/sops
-          sudo chmod +x /usr/local/bin/sops
-
-      - name: Decrypt secrets
-        env:
-          SOPS_AGE_KEY: ${{ secrets.SOPS_KEY }}
+      # Update ToDo-Backend kustomization with new image tags
+      - name: Update ToDo-Backend images
         run: |
           cd ToDo-Backend/manifests/gke
-          sops --decrypt secret.enc.yaml > secret.yaml
-          cd ../../../Broadcaster/manifests/gke
-          sops --decrypt secret.enc.yaml > secret.yaml
-
-      # Deploy ToDo-Backend first (database dependency)
-      - name: Deploy ToDo-Backend
-        run: |
-          cd ToDo-Backend/manifests/gke
-          kustomize edit set namespace $NAMESPACE
           kustomize edit set image PROJECT/TODO_BACKEND=$REGISTRY/$PROJECT_ID/todo-backend:${{ github.sha }}
           kustomize edit set image PROJECT/TODO_CRONJOB=$REGISTRY/$PROJECT_ID/todo-cronjob:${{ github.sha }}
           kustomize edit set image PROJECT/TODO_BACKUP=$REGISTRY/$PROJECT_ID/todo-backup:${{ github.sha }}
-          kustomize build . | kubectl apply -f -
-          kubectl rollout status deployment/todo-backend-dep -n $NAMESPACE
 
-      # Deploy ToDo-App
-      - name: Deploy ToDo-App
+      # Update ToDo-App kustomization with new image tag
+      - name: Update ToDo-App images
         run: |
           cd ToDo-App/manifests/gke
-          kustomize edit set namespace $NAMESPACE
           kustomize edit set image PROJECT/TODO_APP=$REGISTRY/$PROJECT_ID/todo-app:${{ github.sha }}
-          kustomize build . | kubectl apply -f -
-          kubectl rollout status deployment/todo-app-dep -n $NAMESPACE
 
-      # Deploy Broadcaster (6 replicas with NATS queue group for no duplicates)
-      - name: Deploy Broadcaster
+      # Update Broadcaster kustomization with new image tag
+      - name: Update Broadcaster images
         run: |
           cd Broadcaster/manifests/gke
-          kustomize edit set namespace $NAMESPACE
           kustomize edit set image PROJECT/BROADCASTER=$REGISTRY/$PROJECT_ID/broadcaster:${{ github.sha }}
-          kustomize build . | kubectl apply -f -
-          kubectl rollout status deployment/broadcaster-dep -n $NAMESPACE
 
-      - name: Verify deployment
-        run: |
-          echo "Deployed to namespace: $NAMESPACE"
-          kubectl get pods -n $NAMESPACE
-          kubectl get gateway -n $NAMESPACE
+      # Commit the updated kustomization files
+      - name: Commit kustomization changes
+        uses: EndBug/add-and-commit@v9
+        with:
+          add: |
+            ToDo-Backend/manifests/gke/kustomization.yaml
+            ToDo-App/manifests/gke/kustomization.yaml
+            Broadcaster/manifests/gke/kustomization.yaml
+          message: 'ci: Update project images to ${{ github.sha }}'
+          default_author: github_actions
