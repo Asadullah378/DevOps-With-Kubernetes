@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: todo-app-dep
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: todo-app
+  template:
+    metadata:
+      labels:
+        app: todo-app
+    spec:
+      volumes:
+        - name: todo-images
+          persistentVolumeClaim:
+            claimName: todo-images-pvc
+      containers:
+        - name: todo-app
+          image: PROJECT/TODO_APP
+          envFrom:
+            - configMapRef:
+                name: todo-app-configmap
+          readinessProbe:
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            httpGet:
+              path: /healthz
+              port: 8000
+          volumeMounts:
+            - name: todo-images
+              mountPath: /usr/src/app/images
+

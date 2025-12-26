@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: broadcaster-configmap
+data:
+  DISCORD_ENABLED: "false"
+

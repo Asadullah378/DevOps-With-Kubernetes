@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: todo-backend-configmap
+data:
+  NATS_URL: "nats://my-nats.project.svc.cluster.local:4222"
+

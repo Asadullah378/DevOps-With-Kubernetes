@@ -18,6 +18,7 @@ logger = logging.getLogger(__name__)
 NATS_URL = os.getenv("NATS_URL", "nats://my-nats:4222")
 DISCORD_CHANNEL_ID = os.getenv("DISCORD_CHANNEL_ID", "")
 DISCORD_BOT_TOKEN = os.getenv("DISCORD_BOT_TOKEN", "")
+DISCORD_ENABLED = os.getenv("DISCORD_ENABLED", "true").lower() == "true"
 NATS_SUBJECT = "todos"
 QUEUE_GROUP = "broadcasters"  # Queue group ensures only one subscriber processes each message
 
@@ -86,7 +87,11 @@ async def message_handler(msg):
 """.strip()
         
         logger.info(f"Received {action} event for todo {todo_id}")
-        await send_discord_message(message)
+        
+        if DISCORD_ENABLED:
+            await send_discord_message(message)
+        else:
+            logger.info(f"[LOG ONLY MODE] Would send to Discord:\n{message}")
         
     except json.JSONDecodeError as e:
         logger.error(f"Failed to decode message: {e}")
@@ -140,5 +145,9 @@ async def main():
 
 if __name__ == "__main__":
     logger.info("Starting Broadcaster service...")
+    if DISCORD_ENABLED:
+        logger.info("Discord notifications: ENABLED")
+    else:
+        logger.info("Discord notifications: DISABLED (log only mode)")
     asyncio.run(main())
 

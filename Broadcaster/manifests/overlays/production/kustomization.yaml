@@ -1,0 +1,13 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: project
+resources:
+  - ../../base
+patches:
+  - path: configmap-patch.yaml
+  - path: deployment-patch.yaml
+images:
+  - name: PROJECT/BROADCASTER
+    newName: gcr.io/dwk-gke-482214/broadcaster
+    newTag: latest
+

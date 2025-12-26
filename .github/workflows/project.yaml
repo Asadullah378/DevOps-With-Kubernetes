@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - main
+    tags:
+      - '*'
     paths:
       - 'ToDo-App/**'
       - 'ToDo-Backend/**'
@@ -26,6 +28,17 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Determine environment
+        id: env
+        run: |
+          if [[ "${{ github.ref_type }}" == "tag" ]]; then
+            echo "ENVIRONMENT=production" >> $GITHUB_OUTPUT
+            echo "OVERLAY=production" >> $GITHUB_OUTPUT
+          else
+            echo "ENVIRONMENT=staging" >> $GITHUB_OUTPUT
+            echo "OVERLAY=staging" >> $GITHUB_OUTPUT
+          fi
 
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
@@ -56,8 +69,9 @@ jobs:
           docker build -t $REGISTRY/$PROJECT_ID/todo-cronjob:${{ github.sha }} ./ToDo-Backend/cronjob
           docker push $REGISTRY/$PROJECT_ID/todo-cronjob:${{ github.sha }}
 
-      # Build and push ToDo-Backup
+      # Build and push ToDo-Backup (only for production)
       - name: Build and Push ToDo-Backup
+        if: steps.env.outputs.ENVIRONMENT == 'production'
         run: |
           docker build -t $REGISTRY/$PROJECT_ID/todo-backup:${{ github.sha }} ./ToDo-Backend/backup
           docker push $REGISTRY/$PROJECT_ID/todo-backup:${{ github.sha }}
@@ -72,24 +86,30 @@ jobs:
       - name: Set up Kustomize
         uses: imranismail/setup-kustomize@v2
 
-      # Update ToDo-Backend kustomization with new image tags
+      # Update ToDo-Backend overlay with new image tags
       - name: Update ToDo-Backend images
         run: |
-          cd ToDo-Backend/manifests/gke
+          cd ToDo-Backend/manifests/overlays/${{ steps.env.outputs.OVERLAY }}
           kustomize edit set image PROJECT/TODO_BACKEND=$REGISTRY/$PROJECT_ID/todo-backend:${{ github.sha }}
           kustomize edit set image PROJECT/TODO_CRONJOB=$REGISTRY/$PROJECT_ID/todo-cronjob:${{ github.sha }}
+
+      # Update production backup image
+      - name: Update ToDo-Backup image (production only)
+        if: steps.env.outputs.ENVIRONMENT == 'production'
+        run: |
+          cd ToDo-Backend/manifests/overlays/production
           kustomize edit set image PROJECT/TODO_BACKUP=$REGISTRY/$PROJECT_ID/todo-backup:${{ github.sha }}
 
-      # Update ToDo-App kustomization with new image tag
+      # Update ToDo-App overlay with new image tag
       - name: Update ToDo-App images
         run: |
-          cd ToDo-App/manifests/gke
+          cd ToDo-App/manifests/overlays/${{ steps.env.outputs.OVERLAY }}
           kustomize edit set image PROJECT/TODO_APP=$REGISTRY/$PROJECT_ID/todo-app:${{ github.sha }}
 
-      # Update Broadcaster kustomization with new image tag
+      # Update Broadcaster overlay with new image tag
       - name: Update Broadcaster images
         run: |
-          cd Broadcaster/manifests/gke
+          cd Broadcaster/manifests/overlays/${{ steps.env.outputs.OVERLAY }}
           kustomize edit set image PROJECT/BROADCASTER=$REGISTRY/$PROJECT_ID/broadcaster:${{ github.sha }}
 
       # Commit the updated kustomization files
@@ -97,8 +117,8 @@ jobs:
         uses: EndBug/add-and-commit@v9
         with:
           add: |
-            ToDo-Backend/manifests/gke/kustomization.yaml
-            ToDo-App/manifests/gke/kustomization.yaml
-            Broadcaster/manifests/gke/kustomization.yaml
-          message: 'ci: Update project images to ${{ github.sha }}'
+            ToDo-Backend/manifests/overlays/${{ steps.env.outputs.OVERLAY }}/kustomization.yaml
+            ToDo-App/manifests/overlays/${{ steps.env.outputs.OVERLAY }}/kustomization.yaml
+            Broadcaster/manifests/overlays/${{ steps.env.outputs.OVERLAY }}/kustomization.yaml
+          message: 'ci: Update ${{ steps.env.outputs.ENVIRONMENT }} images to ${{ github.sha }}'
           default_author: github_actions
