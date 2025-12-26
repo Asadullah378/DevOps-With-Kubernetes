@@ -2,9 +2,8 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 namespace: staging
 resources:
-  - ../../base
+- ../../base
 images:
-  - name: PROJECT/TODO_APP
-    newName: gcr.io/dwk-gke-482214/todo-app
-    newTag: latest
-
+- name: PROJECT/TODO_APP
+  newName: gcr.io/dwk-gke-482214/todo-app
+  newTag: 86a6634dee5905323c14da3eea6e43933ade254b
