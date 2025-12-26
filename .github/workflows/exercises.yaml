@@ -12,6 +12,7 @@ on:
 env:
   PROJECT_ID: ${{ secrets.GKE_PROJECT }}
   REGISTRY: gcr.io
+  CONFIG_REPO: Asadullah378/DevOps-With-Kubernetes-Config
 
 permissions:
   contents: write
@@ -23,7 +24,7 @@ jobs:
     environment: DWK
 
     steps:
-      - name: Checkout
+      - name: Checkout source repo
         uses: actions/checkout@v4
 
       - name: Authenticate to Google Cloud
@@ -54,6 +55,14 @@ jobs:
           docker build -t $REGISTRY/$PROJECT_ID/pingpong:${{ github.sha }} ./PingPong
           docker push $REGISTRY/$PROJECT_ID/pingpong:${{ github.sha }}
 
+      # Checkout config repo to update manifests
+      - name: Checkout config repo
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ env.CONFIG_REPO }}
+          token: ${{ secrets.CONFIG_REPO_TOKEN }}
+          path: config-repo
+
       # Set up Kustomize
       - name: Set up Kustomize
         uses: imranismail/setup-kustomize@v2
@@ -61,23 +70,22 @@ jobs:
       # Update LogOutput kustomization with new image tags
       - name: Update LogOutput images
         run: |
-          cd LogOutput/manifests/gke
+          cd config-repo/LogOutput/overlays/production
           kustomize edit set image gcr.io/$PROJECT_ID/log-writer=gcr.io/$PROJECT_ID/log-writer:${{ github.sha }}
           kustomize edit set image gcr.io/$PROJECT_ID/log-reader=gcr.io/$PROJECT_ID/log-reader:${{ github.sha }}
 
       # Update PingPong kustomization with new image tag
       - name: Update PingPong images
         run: |
-          cd PingPong/manifests/gke
+          cd config-repo/PingPong/overlays/production
           kustomize edit set image gcr.io/$PROJECT_ID/pingpong=gcr.io/$PROJECT_ID/pingpong:${{ github.sha }}
 
-      # Commit the updated kustomization files
-      - name: Commit kustomization changes
-        uses: EndBug/add-and-commit@v9
-        with:
-          add: |
-            LogOutput/manifests/gke/kustomization.yaml
-            PingPong/manifests/gke/kustomization.yaml
-          message: 'ci: Update images to ${{ github.sha }}'
-          default_author: github_actions
-
+      # Commit and push to config repo
+      - name: Commit and push to config repo
+        run: |
+          cd config-repo
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "Update exercises images to ${{ github.sha }}" || echo "No changes to commit"
+          git push

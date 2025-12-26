@@ -6,8 +6,8 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/Asadullah378/DevOps-With-Kubernetes
-    path: ToDo-Backend/manifests/overlays/staging
+    repoURL: https://github.com/Asadullah378/DevOps-With-Kubernetes-Config
+    path: ToDo-Backend/overlays/staging
     targetRevision: HEAD
   destination:
     server: https://kubernetes.default.svc

@@ -15,6 +15,7 @@ on:
 env:
   PROJECT_ID: ${{ secrets.GKE_PROJECT }}
   REGISTRY: gcr.io
+  CONFIG_REPO: Asadullah378/DevOps-With-Kubernetes-Config
 
 permissions:
   contents: write
@@ -26,7 +27,7 @@ jobs:
     environment: DWK
 
     steps:
-      - name: Checkout
+      - name: Checkout source repo
         uses: actions/checkout@v4
 
       - name: Determine environment
@@ -82,6 +83,14 @@ jobs:
           docker build -t $REGISTRY/$PROJECT_ID/broadcaster:${{ github.sha }} ./Broadcaster
           docker push $REGISTRY/$PROJECT_ID/broadcaster:${{ github.sha }}
 
+      # Checkout config repo to update manifests
+      - name: Checkout config repo
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ env.CONFIG_REPO }}
+          token: ${{ secrets.CONFIG_REPO_TOKEN }}
+          path: config-repo
+
       # Set up Kustomize
       - name: Set up Kustomize
         uses: imranismail/setup-kustomize@v2
@@ -89,7 +98,7 @@ jobs:
       # Update ToDo-Backend overlay with new image tags
       - name: Update ToDo-Backend images
         run: |
-          cd ToDo-Backend/manifests/overlays/${{ steps.env.outputs.OVERLAY }}
+          cd config-repo/ToDo-Backend/overlays/${{ steps.env.outputs.OVERLAY }}
           kustomize edit set image PROJECT/TODO_BACKEND=$REGISTRY/$PROJECT_ID/todo-backend:${{ github.sha }}
           kustomize edit set image PROJECT/TODO_CRONJOB=$REGISTRY/$PROJECT_ID/todo-cronjob:${{ github.sha }}
 
@@ -97,28 +106,27 @@ jobs:
       - name: Update ToDo-Backup image (production only)
         if: steps.env.outputs.ENVIRONMENT == 'production'
         run: |
-          cd ToDo-Backend/manifests/overlays/production
+          cd config-repo/ToDo-Backend/overlays/production
           kustomize edit set image PROJECT/TODO_BACKUP=$REGISTRY/$PROJECT_ID/todo-backup:${{ github.sha }}
 
       # Update ToDo-App overlay with new image tag
       - name: Update ToDo-App images
         run: |
-          cd ToDo-App/manifests/overlays/${{ steps.env.outputs.OVERLAY }}
+          cd config-repo/ToDo-App/overlays/${{ steps.env.outputs.OVERLAY }}
           kustomize edit set image PROJECT/TODO_APP=$REGISTRY/$PROJECT_ID/todo-app:${{ github.sha }}
 
       # Update Broadcaster overlay with new image tag
       - name: Update Broadcaster images
         run: |
-          cd Broadcaster/manifests/overlays/${{ steps.env.outputs.OVERLAY }}
+          cd config-repo/Broadcaster/overlays/${{ steps.env.outputs.OVERLAY }}
           kustomize edit set image PROJECT/BROADCASTER=$REGISTRY/$PROJECT_ID/broadcaster:${{ github.sha }}
 
-      # Commit the updated kustomization files
-      - name: Commit kustomization changes
-        uses: EndBug/add-and-commit@v9
-        with:
-          add: |
-            ToDo-Backend/manifests/overlays/${{ steps.env.outputs.OVERLAY }}/kustomization.yaml
-            ToDo-App/manifests/overlays/${{ steps.env.outputs.OVERLAY }}/kustomization.yaml
-            Broadcaster/manifests/overlays/${{ steps.env.outputs.OVERLAY }}/kustomization.yaml
-          message: 'ci: Update ${{ steps.env.outputs.ENVIRONMENT }} images to ${{ github.sha }}'
-          default_author: github_actions
+      # Commit and push to config repo
+      - name: Commit and push to config repo
+        run: |
+          cd config-repo
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "Update ${{ steps.env.outputs.ENVIRONMENT }} images to ${{ github.sha }}" || echo "No changes to commit"
+          git push
