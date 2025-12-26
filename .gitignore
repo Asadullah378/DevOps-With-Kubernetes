@@ -181,4 +181,5 @@ cython_debug/
 .cursorindexingignore
 key.txt
 */manifests/secret.yaml
+*/manifests/gke/secret.yaml
 backup-key.json

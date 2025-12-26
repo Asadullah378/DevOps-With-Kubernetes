@@ -108,6 +108,20 @@ jobs:
           kubectl create namespace $NAMESPACE || true
           kubectl config set-context --current --namespace=$NAMESPACE
 
+      # Decrypt secrets using SOPS
+      - name: Install SOPS
+        run: |
+          curl -LO https://github.com/getsops/sops/releases/download/v3.8.1/sops-v3.8.1.linux.amd64
+          sudo mv sops-v3.8.1.linux.amd64 /usr/local/bin/sops
+          sudo chmod +x /usr/local/bin/sops
+
+      - name: Decrypt secrets
+        env:
+          SOPS_AGE_KEY: ${{ secrets.SOPS_KEY }}
+        run: |
+          cd ToDo-Backend/manifests/gke
+          sops --decrypt secret.enc.yaml > secret.yaml
+
       # Deploy ToDo-Backend first (database dependency)
       - name: Deploy ToDo-Backend
         run: |
