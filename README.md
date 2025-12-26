@@ -85,6 +85,7 @@
 **Output:**
 
 ![Log Output](LogOutput/Screenshots/1.11.1.png)
+
 ![PingPong Output](PingPong/Screenshots/1.11.2.png)
 
 ### Exercise 1.12: The project, step 6
@@ -144,6 +145,7 @@
 **Output:**
 
 ![Log Output](PingPong/Screenshots/2.7.1.png)
+
 ![PingPong Output](PingPong/Screenshots/2.7.2.png)
 
 ### Exercise 2.8: The project, step 11
@@ -161,6 +163,7 @@
 **ToDo App:**
 
 ![ToDo App](ToDo-App/Screenshots/2.9.1.png)
+
 ![ToDo App](ToDo-App/Screenshots/2.9.2.png)
 
 ### Exercise 2.10: The project, step 13
@@ -188,6 +191,7 @@
 **PingPong App\LogOutput:**
 
 ![Log Output](LogOutput/Screenshots/3.2.1.png)
+
 ![PingPong App](LogOutput/Screenshots/3.2.2.png)
 
 ### Exercise 3.3: To the Gateway
@@ -279,6 +283,7 @@
 **ToDo App:**
 
 ![ToDo App](ToDo-App/Screenshots/3.12.1.png)
+
 ![ToDo App](ToDo-App/Screenshots/3.12.2.png)
 
 ## Chapter 5
@@ -332,3 +337,13 @@
 ![ToDo App](ToDo-App/Screenshots/4.6.2.png)
 
 ![ToDo App](ToDo-App/Screenshots/4.6.3.png)
+
+### Exercise 4.7: Baby steps to GitOps
+
+**Submission:** [4.7](https://github.com/Asadullah378/DevOps-With-Kubernetes/tree/4.7)
+
+**ArgoCD:**
+
+![PingPong](PingPong/Screenshots/4.7.1.png)
+
+![LogOutput](LogOutput/Screenshots/4.7.2.png)
