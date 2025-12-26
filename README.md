@@ -2,8 +2,6 @@
 
 ## Exercise Navigation
 
-Got it — 4 columns (Chapter 2–5) and **13 rows** (…1 to …13). Paste this:
-
 | **Chapter 2** | **Chapter 3** | **Chapter 4** | **Chapter 5** |
 |-----------|-----------|-----------|-----------|
 | [1.1](https://github.com/Asadullah378/DevOps-With-Kubernetes/tree/1.1) | [2.1](https://github.com/Asadullah378/DevOps-With-Kubernetes/tree/2.1) | [3.1](https://github.com/Asadullah378/DevOps-With-Kubernetes/tree/3.1) | [4.1](https://github.com/Asadullah378/DevOps-With-Kubernetes/tree/4.1) |
