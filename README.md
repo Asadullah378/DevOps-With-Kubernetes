@@ -367,3 +367,11 @@
 **ToDo App:**
 
 ![ToDo App](ToDo-App/Screenshots/4.9.png)
+
+### Exercise 4.10: The project grand finale
+
+**Submission:** [4.10](https://github.com/Asadullah378/DevOps-With-Kubernetes/tree/4.10)
+
+**Config Repo:** [Config Repo](https://github.com/Asadullah378/DevOps-With-Kubernetes-Config)
+
+![Config Repo](ToDo-App/Screenshots/4.10.png)
